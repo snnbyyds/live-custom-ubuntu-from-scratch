@@ -7,11 +7,11 @@
 
 # The version of Ubuntu to generate.  Successfully tested LTS: bionic, focal, jammy, noble
 # See https://wiki.ubuntu.com/DevelopmentCodeNames for details
-export TARGET_UBUNTU_VERSION="focal"
+export TARGET_UBUNTU_VERSION="plucky"
 
 # The Ubuntu Mirror URL. It's better to change for faster download.
 # More mirrors see: https://launchpad.net/ubuntu/+archivemirrors
-export TARGET_UBUNTU_MIRROR="http://us.archive.ubuntu.com/ubuntu/"
+export TARGET_UBUNTU_MIRROR="http://mirrors.aliyun.com/ubuntu/"
 
 # The packaged version of the Linux kernel to install on target image.
 # See https://wiki.ubuntu.com/Kernel/LTSEnablementStack for details
@@ -19,13 +19,13 @@ export TARGET_KERNEL_PACKAGE="linux-generic"
 
 # The file (no extension) of the ISO containing the generated disk image,
 # the volume id, and the hostname of the live environment are set from this name.
-export TARGET_NAME="ubuntu-from-scratch"
+export TARGET_NAME="Ubuntu"
 
 # The text label shown in GRUB for booting into the live environment
-export GRUB_LIVEBOOT_LABEL="Try Ubuntu FS without installing"
+export GRUB_LIVEBOOT_LABEL="Try Ubuntu without installing"
 
 # The text label shown in GRUB for starting installation
-export GRUB_INSTALL_LABEL="Install Ubuntu FS"
+export GRUB_INSTALL_LABEL="Install Ubuntu"
 
 # Packages to be removed from the target system after installation completes succesfully
 export TARGET_PACKAGE_REMOVE="
@@ -41,29 +41,90 @@ export TARGET_PACKAGE_REMOVE="
 function customize_image() {
     # install graphics and desktop
     apt-get install -y \
-        plymouth-themes \
-        ubuntu-gnome-desktop \
-        ubuntu-gnome-wallpapers
+        ubuntu-desktop-minimal \
+        ibus-libpinyin \
+        ibus-pinyin
 
     # useful tools
     apt-get install -y \
-        clamav-daemon \
-        terminator \
-        apt-transport-https \
         curl \
         vim \
         nano \
-        less
+        less \
+        clangd \
+        clang \
+        build-essential \
+        htop
+
+    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > "/etc/apt/sources.list.d/google-chrome.list"
+    apt update -y
+    apt install -y google-chrome-stable
+
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
+    install -D -o root -g root -m 644 microsoft.gpg /usr/share/keyrings/microsoft.gpg
+    rm -f microsoft.gpg
+    cat > /etc/apt/sources.list.d/vscode.sources << EOF
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64,arm64,armhf
+Signed-By: /usr/share/keyrings/microsoft.gpg
+EOF
+    apt update -y
+    apt install code-insiders
+
+    cat >> /etc/sysctl.conf << 'SYSCTLEOF'
+vm.swappiness=1
+vm.vfs_cache_pressure=50
+vm.dirty_background_ratio=1
+vm.dirty_ratio=50
+kernel.nmi_watchdog=0
+net.ipv4.tcp_congestion_control=bbr
+SYSCTLEOF
+
+    apt-get install -y fastfetch
 
     # purge
-    apt-get purge -y \
-        transmission-gtk \
-        transmission-common \
-        gnome-mahjongg \
-        gnome-mines \
-        gnome-sudoku \
-        aisleriot \
-        hitori
+    local unwanted_packages=(
+        "gnome-accessibility-themes"
+        "gnome-bluetooth-sendto"
+        "gnome-initial-setup"
+        "gnome-font-viewer"
+        "gnome-clocks"
+        "gnome-logs"
+        "gnome-remote-desktop"
+        "gnome-system-monitor"
+        "gnome-text-editor"
+        "printer-driver-*"
+        "papers"
+        "orca"
+        "packagekit"
+        "avahi-daemon"
+        "whoopsie"
+        "firefox"
+        "cloud-init"
+        "ubuntu-pro-client"
+        "ubuntu-advantage-tools"
+	"snapd"
+	"firefox"
+	"sssd"
+        "aisleriot"
+        "hitori"
+    )
+
+    for package in "${unwanted_packages[@]}"; do
+        apt purge -y $package 2>/dev/null || true
+    done
+    rm -rf /var/cache/snapd/
+
+    apt install busybox-initramfs  dracut-install  fuse3  initramfs-tools  initramfs-tools-bin  initramfs-tools-core  klibc-utils libklibc  linux-base  zstd -y
+    apt autoremove --purge -y
+
+    systemctl mask systemd-networkd-wait-online.service
+    systemctl disable bluetooth.service || true
+    systemctl disable casper-md5check.service || true
 }
 
 # Used to version the configuration.  If breaking changes occur, manual

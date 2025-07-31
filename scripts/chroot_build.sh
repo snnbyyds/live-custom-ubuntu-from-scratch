@@ -107,7 +107,6 @@ function install_pkg() {
         os-prober \
         network-manager \
         net-tools \
-        wireless-tools \
         wpagui \
         locales \
         grub-common \
@@ -195,18 +194,13 @@ insmod all_video
 set default="0"
 set timeout=30
 
-menuentry "Try Ubuntu FS without installing" {
-    linux /casper/vmlinuz boot=casper nopersistent toram quiet splash ---
+menuentry "Try Ubuntu without installing" {
+    linux /casper/vmlinuz boot=casper nopersistent toram ---
     initrd /casper/initrd
 }
 
-menuentry "Install Ubuntu FS" {
-    linux /casper/vmlinuz boot=casper only-ubiquity quiet splash ---
-    initrd /casper/initrd
-}
-
-menuentry "Check disc for defects" {
-    linux /casper/vmlinuz boot=casper integrity-check quiet splash ---
+menuentry "Install Ubuntu" {
+    linux /casper/vmlinuz boot=casper only-ubiquity ---
     initrd /casper/initrd
 }
 
