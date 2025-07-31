@@ -32,8 +32,7 @@ export TARGET_PACKAGE_REMOVE="
     ubiquity \
     casper \
     discover \
-    laptop-detect \
-    os-prober \
+    laptop-detect
 "
 
 # Package customisation function.  Update this function to customize packages
@@ -41,9 +40,36 @@ export TARGET_PACKAGE_REMOVE="
 function customize_image() {
     # install graphics and desktop
     apt-get install -y \
-        ubuntu-desktop-minimal \
+        alsa-utils \
+        apt-config-icons-hidpi \
+        dmz-cursor-theme \
+        fonts-ubuntu \
+        fonts-liberation \
+        fonts-noto-cjk \
+        fonts-noto-color-emoji \
+        fonts-noto-core \
+        gdm3 \
+        gnome-shell \
+        gnome-shell-extension-appindicator \
+        gnome-shell-extension-desktop-icons-ng \
+        gnome-shell-extension-ubuntu-dock \
+        gnome-shell-extension-ubuntu-tiling-assistant \
+        gnome-control-center \
+        gnome-disk-utility \
+        gnome-terminal \
+        gnome-session-canberra \
+        gnome-menus \
+        gsettings-ubuntu-schemas \
+        ubuntu-settings \
+        ubuntu-session \
+        ubuntu-wallpapers \
+        iio-sensor-proxy \
         ibus-libpinyin \
-        ibus-pinyin
+        ibus-pinyin \
+        va-driver-all \
+        ubuntu-drivers-common \
+        adb \
+        fastboot
 
     # useful tools
     apt-get install -y \
@@ -84,7 +110,7 @@ kernel.nmi_watchdog=0
 net.ipv4.tcp_congestion_control=bbr
 SYSCTLEOF
 
-    apt-get install -y fastfetch
+    apt-get install -y fastfetch git
 
     # purge
     local unwanted_packages=(
@@ -95,8 +121,10 @@ SYSCTLEOF
         "gnome-clocks"
         "gnome-logs"
         "gnome-remote-desktop"
+        "gnome-keyring"
         "gnome-system-monitor"
         "gnome-text-editor"
+        "gnome-startup-applications"
         "printer-driver-*"
         "papers"
         "orca"
@@ -112,6 +140,12 @@ SYSCTLEOF
 	"sssd"
         "aisleriot"
         "hitori"
+        "gnome-characters"
+        "gnome-software"
+        "gnome-online-accounts-gtk"
+        "gnome-power-manager"
+        "zutty"
+        "wpagui"
     )
 
     for package in "${unwanted_packages[@]}"; do
