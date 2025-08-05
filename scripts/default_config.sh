@@ -56,6 +56,7 @@ function customize_image() {
         gnome-shell-extension-ubuntu-tiling-assistant \
         gnome-control-center \
         gnome-disk-utility \
+        gnome-keyring \
         gnome-terminal \
         gnome-session-canberra \
         gnome-menus \
@@ -69,7 +70,11 @@ function customize_image() {
         va-driver-all \
         ubuntu-drivers-common \
         adb \
-        fastboot
+        fastboot \
+        yaru-theme-icon \
+        yaru-theme-sound \
+        yaru-theme-gtk \
+        yaru-theme-gnome-shell
 
     # useful tools
     apt-get install -y \
@@ -80,7 +85,8 @@ function customize_image() {
         clangd \
         clang \
         build-essential \
-        htop
+        gdb \
+        tree
 
     curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome-keyring.gpg
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > "/etc/apt/sources.list.d/google-chrome.list"
@@ -114,14 +120,12 @@ SYSCTLEOF
 
     # purge
     local unwanted_packages=(
-        "gnome-accessibility-themes"
         "gnome-bluetooth-sendto"
         "gnome-initial-setup"
         "gnome-font-viewer"
         "gnome-clocks"
         "gnome-logs"
         "gnome-remote-desktop"
-        "gnome-keyring"
         "gnome-system-monitor"
         "gnome-text-editor"
         "gnome-startup-applications"
@@ -156,7 +160,7 @@ SYSCTLEOF
     apt install busybox-initramfs  dracut-install  fuse3  initramfs-tools  initramfs-tools-bin  initramfs-tools-core  klibc-utils libklibc  linux-base  zstd -y
     apt autoremove --purge -y
 
-    systemctl mask systemd-networkd-wait-online.service
+    systemctl mask systemd-networkd-wait-online.service || true
     systemctl disable bluetooth.service || true
     systemctl disable casper-md5check.service || true
 }
