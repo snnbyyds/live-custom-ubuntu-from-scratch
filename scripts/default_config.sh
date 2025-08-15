@@ -7,7 +7,7 @@
 
 # The version of Ubuntu to generate.  Successfully tested LTS: bionic, focal, jammy, noble
 # See https://wiki.ubuntu.com/DevelopmentCodeNames for details
-export TARGET_UBUNTU_VERSION="plucky"
+export TARGET_UBUNTU_VERSION="questing"
 
 # The Ubuntu Mirror URL. It's better to change for faster download.
 # More mirrors see: https://launchpad.net/ubuntu/+archivemirrors
